@@ -1,65 +1,54 @@
 package com.javaex.dao;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import com.javaex.vo.PersonVo;
 
 @Repository
 public class PhoneDao {
+	
+	@Autowired
+	private SqlSession sqlSession;
+	
+	// @Autowired
+	// private DataSource dataSource;
 
 	// 필드
 	// 0. import java.sql.*;
-	private Connection conn = null;
-	private PreparedStatement pstmt = null;
-	private ResultSet rs = null;
-
-	private String driver = "oracle.jdbc.driver.OracleDriver";
-	private String url = "jdbc:oracle:thin:@localhost:1521:xe";
-	private String id = "phonedb";
-	private String pw = "phonedb";
 
 	// 메소드 일반
-	private void getConnection() {
+	/*private void getConnection() {
 		try {
-			// 1. JDBC 드라이버 (Oracle) 로딩
-			Class.forName(driver);
+			// conn = dataSource.getConnection();
 
-			// 2. Connection 얻어오기
-			conn = DriverManager.getConnection(url, id, pw);
-
-		} catch (ClassNotFoundException e) {
-			System.out.println("error: 드라이버 로딩실패 - " + e);
 		} catch (SQLException e) {
-			System.out.println("error." + e);
+			System.out.println("error: " + e);
 		}
-	}
+	}*/
+	
+	// private void close() {}
 
-	private void close() {
-		try {
-			// 자원정리
-			if (pstmt != null) {
-				pstmt.close();
-			}
-			if (conn != null) {
-				conn.close();
-			}
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		}
+	// 리스트 가져오기
+	public List<PersonVo> getPersonList() {
+		System.out.println("PhoneDao.getPersonList()");
+		
+		List<PersonVo> personList = sqlSession.selectList("phonebook.selectList");
+		System.out.println(personList);
+		
+		return personList;
 	}
-
+	
 	// 등록
 	public int personInsert(PersonVo personVo) {
-		int count = 0;
-		this.getConnection();
+		System.out.println("PhoneDao.personInsert()");
+		
+		return sqlSession.insert("phonebook.insert", personVo);
+		
+		/*this.getConnection();
 
 		try {
 			String query = "";
@@ -79,14 +68,16 @@ public class PhoneDao {
 			System.out.println("error:" + e);
 		}
 
-		this.close();
-		return count;
+		this.close();*/		
 	}
 
 	// 삭제
-	public int personDelete(int index) {
-		int count = 0;
-		this.getConnection();
+	public int personDelete(int personId) {
+		System.out.println("PhoneDao.personDelete()");
+		
+		return sqlSession.delete("phonebook.delete", personId);
+		
+		/*this.getConnection();
 
 		try {
 			String query = "";
@@ -104,14 +95,54 @@ public class PhoneDao {
 			System.out.println("error:" + e);
 		}
 
-		this.close();
-		return count;
+		this.close();*/
 	}
 
+	// 한 사람의 데이터만 가져오기
+	public PersonVo getPerson(int personId) {
+		System.out.println("PhoneDao.getPerson()");
+		
+		PersonVo personVo = sqlSession.selectOne("phonebook.selectById", personId);
+		return personVo;
+		
+		/*this.getConnection();
+
+		try {
+			String query = "";
+			query += "select  name, ";
+			query += "        hp, ";
+			query += "        company ";
+			query += " from person ";
+			query += " where person_id = ?";
+
+			pstmt = conn.prepareStatement(query);
+
+			pstmt.setInt(1, personId);
+
+			rs = pstmt.executeQuery();
+
+			while (rs.next() == true) {
+				String name = rs.getString("name");
+				String hp = rs.getString("hp");
+				String company = rs.getString("company");
+
+				vo = new PersonVo(personId, name, hp, company);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("error:" + e);
+		}
+
+		this.close();*/
+	}
+		
 	// 수정
 	public int personUpdate(PersonVo personVo) {
-		int count = 0;
-		this.getConnection();
+		System.out.println("PhoneDao.personUpdate()");
+
+		return sqlSession.update("phonebook.update", personVo);
+		
+		/*this.getConnection();
 
 		try {
 			String query = "";
@@ -135,17 +166,11 @@ public class PhoneDao {
 			System.out.println("error." + e);
 		}
 
-		this.close();
-		return count;
-	}
-
-	// 리스트 가져오기
-	public List<PersonVo> getPersonList() {
-		return getPersonList("");
+		this.close();*/
 	}
 
 	// 검색
-	public List<PersonVo> getPersonList(String keyword) {
+	/*public List<PersonVo> getPersonList(String keyword) {
 		List<PersonVo> pList = new ArrayList<PersonVo>();
 		this.getConnection();
 
@@ -186,40 +211,5 @@ public class PhoneDao {
 
 		this.close();
 		return pList;
-	}
-
-	// 한 사람의 데이터만 가져오기
-	public PersonVo getPerson(int personId) {
-		PersonVo vo = null;
-		this.getConnection();
-
-		try {
-			String query = "";
-			query += "select  name, ";
-			query += "        hp, ";
-			query += "        company ";
-			query += " from person ";
-			query += " where person_id = ?";
-
-			pstmt = conn.prepareStatement(query);
-
-			pstmt.setInt(1, personId);
-
-			rs = pstmt.executeQuery();
-
-			while (rs.next() == true) {
-				String name = rs.getString("name");
-				String hp = rs.getString("hp");
-				String company = rs.getString("company");
-
-				vo = new PersonVo(personId, name, hp, company);
-			}
-
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		}
-
-		this.close();
-		return vo;
-	}
+	}*/	
 }
