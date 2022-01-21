@@ -3,9 +3,16 @@
 
 <mapper namespace="phonebook">
 
-	<select id="selectList" resultType="com.javaex.vo.PersonVo">
+	<resultMap id="resultMapPersonVo" type="PersonVo">
+		<result column="person_id" property="personId" />
+		<result column="name" property="name" />
+		<result column="hp" property="hp" />
+		<result column="company" property="company" />
+	</resultMap>
+
+	<select id="selectList" resultMap="resultMapPersonVo">
 		<![CDATA[
-			select  person_id personId,
+			select  person_id,
         			name,
         			hp,
         			company
@@ -13,8 +20,37 @@
 			order by person_id asc
 		]]>
 	</select>	
+		
+	<select id="selectById" parameterType="int" resultMap="resultMapPersonVo">
+		<![CDATA[
+			select  person_id,
+					name,
+        			hp,
+        			company
+			from person
+			where person_id = #{personId}		
+		]]>	
+	</select>
 	
-	<insert id="insert" parameterType="com.javaex.vo.PersonVo">
+	<select id="selectById2" parameterType="int" resultType="map">
+		<![CDATA[
+			select  person_id,
+					name,
+        			hp,
+        			company
+			from person
+			where person_id = #{personId}		
+		]]>	
+	</select>
+	
+	<insert id="insert" parameterType="PersonVo">
+		<![CDATA[
+			insert into person
+			values(seq_person_id.nextval, #{name}, #{hp}, #{company})
+		]]>
+	</insert>
+	
+	<insert id="insert2" parameterType="map">
 		<![CDATA[
 			insert into person
 			values(seq_person_id.nextval, #{name}, #{hp}, #{company})
@@ -28,18 +64,7 @@
 		]]>
 	</delete>	
 	
-	<select id="selectById" parameterType="int" resultType="com.javaex.vo.PersonVo">
-		<![CDATA[
-			select  person_id personId,
-					name,
-        			hp,
-        			company
-			from person
-			where person_id = #{personId}		
-		]]>	
-	</select>
-	
-	<update id="update" parameterType="com.javaex.vo.PersonVo">
+	<update id="update" parameterType="PersonVo">
 		<![CDATA[
 			update person			
 			set name = #{name},

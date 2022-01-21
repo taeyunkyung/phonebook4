@@ -1,6 +1,8 @@
 package com.javaex.dao;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,72 @@ public class PhoneDao {
 		System.out.println(personList);
 		
 		return personList;
+	}
+
+	// 한 사람의 데이터만 가져오기
+	public PersonVo getPerson(int personId) {
+		System.out.println("PhoneDao.getPerson()");
+		
+		PersonVo personVo = sqlSession.selectOne("phonebook.selectById", personId);
+		return personVo;
+		
+		/*this.getConnection();
+
+		try {
+			String query = "";
+			query += "select  name, ";
+			query += "        hp, ";
+			query += "        company ";
+			query += " from person ";
+			query += " where person_id = ?";
+
+			pstmt = conn.prepareStatement(query);
+
+			pstmt.setInt(1, personId);
+
+			rs = pstmt.executeQuery();
+
+			while (rs.next() == true) {
+				String name = rs.getString("name");
+				String hp = rs.getString("hp");
+				String company = rs.getString("company");
+
+				vo = new PersonVo(personId, name, hp, company);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("error:" + e);
+		}
+
+		this.close();*/
+	}
+	
+	// map 사용
+	public PersonVo getPerson2(int index) {
+		System.out.println("PhoneDao.getPerson2(): 맵으로 받기");
+		Map<String, Object> personMap = sqlSession.selectOne("phonebook.selectById2", index);
+		// System.out.println(personMap.keySet());
+		
+		System.out.println(personMap.get("PERSON_ID"));
+		System.out.println(personMap.get("NAME"));
+		System.out.println(personMap.get("HP"));
+		System.out.println(personMap.get("COMPANY"));
+		
+		return null;
+	}
+	
+	public int personInsert2(String name, String hp, String company) {
+		System.out.println("PhoneDao.personInsert(): 파라미터 여러 개로 받을때 ");
+		// String name = "경태윤";
+		// String hp = "010-0000-0000";
+		// String company = "02-0000-0000";		
+		
+		Map<String, String> personMap = new HashMap<String, String>();
+		personMap.put("name", name);
+		personMap.put("hp", hp);
+		personMap.put("company", company);
+		
+		return sqlSession.insert("phonebook.insert2", personMap);
 	}
 	
 	// 등록
@@ -90,44 +158,6 @@ public class PhoneDao {
 
 			count = pstmt.executeUpdate();
 			System.out.println("[" + count + "건 삭제되었습니다.(PhoneDao)]");
-
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		}
-
-		this.close();*/
-	}
-
-	// 한 사람의 데이터만 가져오기
-	public PersonVo getPerson(int personId) {
-		System.out.println("PhoneDao.getPerson()");
-		
-		PersonVo personVo = sqlSession.selectOne("phonebook.selectById", personId);
-		return personVo;
-		
-		/*this.getConnection();
-
-		try {
-			String query = "";
-			query += "select  name, ";
-			query += "        hp, ";
-			query += "        company ";
-			query += " from person ";
-			query += " where person_id = ?";
-
-			pstmt = conn.prepareStatement(query);
-
-			pstmt.setInt(1, personId);
-
-			rs = pstmt.executeQuery();
-
-			while (rs.next() == true) {
-				String name = rs.getString("name");
-				String hp = rs.getString("hp");
-				String company = rs.getString("company");
-
-				vo = new PersonVo(personId, name, hp, company);
-			}
 
 		} catch (SQLException e) {
 			System.out.println("error:" + e);

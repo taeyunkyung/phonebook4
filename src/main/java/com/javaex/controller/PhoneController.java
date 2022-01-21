@@ -43,10 +43,12 @@ public class PhoneController {
 	}
 	
 	@RequestMapping(value = "/write", method = { RequestMethod.GET, RequestMethod.POST })
-	public String write(@ModelAttribute PersonVo personVo) {
+	public String write(@RequestParam("name") String name,
+						@RequestParam("hp") String hp,
+						@RequestParam("company") String company) {
 		System.out.println("PhoneController>write");
 
-		phoneDao.personInsert(personVo);
+		phoneDao.personInsert2(name, hp, company);
 		
 		return "redirect:/phone/list";
 	}
@@ -56,7 +58,7 @@ public class PhoneController {
 		Model model) {
 		System.out.println("PhoneController>updateForm");
 
-		PersonVo personVo = phoneDao.getPerson(personId);
+		PersonVo personVo = phoneDao.getPerson2(personId);
 		model.addAttribute("personVo", personVo);
 		
 		return "updateForm";
